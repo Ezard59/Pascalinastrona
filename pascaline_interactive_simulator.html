@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="pl" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pascalina (1642) – Interaktywne Laboratorium Mechaniki i Arytmetyki</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=IM+Fell+English:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brass: {
+              100: '#fef9e7',
+              200: '#f9e79f',
+              300: '#f4d03f',
+              400: '#d4af37',
+              500: '#b7950b',
+              600: '#9a7d0a',
+              700: '#7d6608',
+              800: '#5c4b06',
+              900: '#3b3004'
+            },
+            mahogany: {
+              800: '#2d140a',
+              900: '#1c0c06',
+              950: '#110703'
+            },
+            blueprint: {
+              800: '#0f2537',
+              900: '#091824',
+              950: '#050e16'
+            }
+          },
+          fontFamily: {
+            title: ['Cinzel', 'serif'],
+            vintage: ['"IM Fell English"', 'serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+            sans: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background: radial-gradient(circle at 50% 0%, #24130b 0%, #0f0805 60%, #080403 100%);
+      color: #ede0ce;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Mosiężna płyta główna Pascaliny */
+    .brass-plate {
+      background: 
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 4px),
+        linear-gradient(135deg, #e2c15a 0%, #b38418 22%, #f7e39c 48%, #90650d 75%, #d4af37 100%);
+      box-shadow: 
+        inset 0 2px 5px rgba(255, 255, 255, 0.75),
+        inset 0 -4px 8px rgba(0, 0, 0, 0.75),
+        0 20px 50px rgba(0, 0, 0, 0.9);
+      border: 3px solid #69490a;
+    }
+
+    /* Drewniana obudowa mahoniowa */
+    .mahogany-case {
+      background: linear-gradient(180deg, #3c1b0e 0%, #220e06 50%, #160803 100%);
+      box-shadow: 
+        inset 0 2px 4px rgba(255, 200, 150, 0.15),
+        inset 0 -6px 14px rgba(0, 0, 0, 0.95),
+        0 25px 60px rgba(0, 0, 0, 0.95);
+      border: 6px solid #2b1208;
+    }
+
+    /* Ruchoma listwa przysłaniająca (Suwak dodawania/odejmowania) */
+    .brass-slider-bar {
+      background: linear-gradient(180deg, #f3d982 0%, #b58519 45%, #7e5908 55%, #d9b44a 100%);
+      box-shadow: 
+        0 6px 14px rgba(0, 0, 0, 0.85),
+        inset 0 1px 2px rgba(255, 255, 255, 0.9),
+        inset 0 -1px 2px rgba(0, 0, 0, 0.7);
+      border-top: 1px solid #fff3c4;
+      border-bottom: 2px solid #473103;
+      transition: transform 0.45s cubic-bezier(0.34, 1.3, 0.64, 1);
+    }
+
+    /* Okienko pojedynczego bębna */
+    .drum-viewport {
+      background: radial-gradient(circle at 50% 50%, #1c1610 0%, #090705 100%);
+      box-shadow: 
+        inset 0 6px 12px rgba(0, 0, 0, 0.95),
+        inset 0 -6px 12px rgba(0, 0, 0, 0.95),
+        0 1px 0 rgba(255, 235, 160, 0.5);
+      border: 3px solid #3f2b06;
+    }
+
+    /* Przyciski mosiężne */
+    .brass-button {
+      background: linear-gradient(180deg, #efd077 0%, #b58418 100%);
+      color: #231502;
+      border: 1px solid #fff1b8;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.8);
+      transition: all 0.15s ease;
+    }
+    .brass-button:hover:not(:disabled) {
+      background: linear-gradient(180deg, #f9e195 0%, #c99622 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 5px 12px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.95);
+    }
+    .brass-button:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+    .brass-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Siatka techniczna Blueprint dla sekcji X-Ray */
+    .blueprint-grid {
+      background-color: #07131e;
+      background-image: 
+        linear-gradient(rgba(56, 189, 248, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56, 189, 248, 0.07) 1px, transparent 1px),
+        linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+      background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+    }
+
+    /* Nit dekoracyjny */
+    .brass-rivet {
+      width: 10px;
+      height: 10px;
+      border-radius: 9999px;
+      background: radial-gradient(circle at 30% 30%, #ffffff 0%, #e5c158 40%, #5e4207 100%);
+      box-shadow: 0 2px 3px rgba(0,0,0,0.75);
+    }
+
+    /* Animacja impulsu Sautoir */
+    @keyframes sautoirPulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.8); }
+      50% { transform: scale(1.06); box-shadow: 0 0 20px 6px rgba(245, 158, 11, 0.5); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+    }
+    .sautoir-jump-active {
+      animation: sautoirPulse 0.45s ease-out;
+    }
+
+    /* Płynny obrót kół SVG */
+    .wheel-rotor {
+      transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+      transform-origin: 100px 100px;
+    }
+
+    /* Pasek przewijania */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #120905; }
+    ::-webkit-scrollbar-thumb { background: #785413; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a6761e; }
+  </style>
+</head>
+<body class="selection:bg-amber-500 selection:text-stone-950">
+
+  <!-- ===================================================================== -->
+  <!-- NAGŁÓWEK I PASEK NAWIGACYJNY                                          -->
+  <!-- ===================================================================== -->
+  <header class="sticky top-0 z-50 bg-stone-950/90 backdrop-blur-md border-b border-amber-800/40 shadow-2xl">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Logo & Tytuł -->
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl brass-plate flex items-center justify-center font-title font-black text-stone-950 text-lg shadow-md">
+          BP
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-title text-lg sm:text-xl font-bold tracking-wider text-amber-300">
+              PASCALINA <span class="text-amber-500/80 font-normal text-sm">1642</span>
+            </h1>
+            <span class="hidden sm:inline-block text-[11px] font-mono uppercase px-2 py-0.5 rounded bg-amber-950/90 text-amber-300 border border-amber-700/50">
+              Laboratorium Inżynieryjne
+            </span>
+          </div>
+          <p class="text-xs text-stone-400 font-vintage italic">
+            Interaktywny symulator mechaniki kół zębatych, zapadki Sautoir i arytmetyki dopełnień
+          </p>
+        </div>
+      </div>
+
+      <!-- Szybka nawigacja do modułów + Dźwięk -->
+      <nav class="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs font-medium">
+        <a href="#modul-symulator" class="px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-200 border border-amber-500/40 hover:bg-amber-500/30 transition">
+          1. Symulator 1642
+        </a>
+        <a href="#modul-xray" class="px-3 py-1.5 rounded-lg bg-stone-900 text-stone-300 border border-stone-700/70 hover:border-amber-500/50 hover:text-amber-200 transition">
+          2. Przekrój X-Ray (Sautoir)
+        </a>
+        <a href="#modul-odejmowanie" class="px-3 py-1.5 rounded-lg bg-stone-900 text-stone-300 border border-stone-700/70 hover:border-amber-500/50 hover:text-amber-200 transition">
+          3. Kalkulator Dopełnień
+        </a>
+        <a href="#modul-kompendium" class="px-3 py-1.5 rounded-lg bg-stone-900 text-stone-300 border border-stone-700/70 hover:border-amber-500/50 hover:text-amber-200 transition">
+          4. Kompendium & Ściąga
+        </a>
+        <button id="btn-sound-toggle" onclick="toggleSound()" class="px-2.5 py-1.5 rounded-lg bg-stone-900 border border-amber-700/50 text-amber-300 hover:bg-stone-800 transition flex items-center gap-1.5" title="Włącz/Wyłącz syntezę dźwięków mechanicznych">
+          <span id="sound-icon">🔊</span>
+          <span id="sound-label" class="hidden md:inline">Dźwięk: WŁ.</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-3 sm:px-6 py-6 space-y-12">
+
+    <!-- ===================================================================== -->
+    <!-- MODUŁ 1: GŁÓWNY INTERAKTYWNY SYMULATOR PASCALINY                      -->
+    <!-- ===================================================================== -->
+    <section id="modul-symulator" class="scroll-mt-20 space-y-5">
+      
+      <!-- Pasek tytułowy i przełączniki trybu maszyny -->
+      <div class="bg-stone-900/90 border border-amber-800/50 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 text-amber-400 text-xs font-mono uppercase tracking-widest mb-1">
+            <span>Moduł 01</span>
+            <span>•</span>
+            <span>Widok z góry + Telemetria na żywo</span>
+          </div>
+          <h2 class="font-title text-xl sm:text-2xl font-bold text-amber-100">
+            Główny Symulator Maszyny Blaise’a Pascala
+          </h2>
+          <p class="text-xs sm:text-sm text-stone-300 mt-0.5">
+            Kliknij dowolną cyfrę na wybranej tarczy szprychowej poniżej, aby włożyć rysik i obrócić koło do metalowej stopki.
+          </p>
+        </div>
+
+        <!-- Przełącznik trybu: Dziesiętny vs Monetarny -->
+        <div class="flex flex-wrap items-center gap-2 bg-stone-950 p-1.5 rounded-xl border border-amber-900/60 w-full lg:w-auto">
+          <button id="mode-btn-decimal" onclick="setMachineMode('decimal')" class="flex-1 lg:flex-initial px-3.5 py-2 rounded-lg text-xs font-semibold transition flex flex-col items-center sm:items-start bg-amber-500 text-stone-950 shadow">
+            <span class="font-bold">Tryb Dziesiętny (Naukowy)</span>
+            <span class="text-[10px] opacity-80 font-mono">5 bębnów po 10 zębów (10-10-10-10-10)</span>
+          </button>
+          <button id="mode-btn-monetary" onclick="setMachineMode('monetary')" class="flex-1 lg:flex-initial px-3.5 py-2 rounded-lg text-xs font-semibold transition flex flex-col items-center sm:items-start text-amber-200/80 hover:text-amber-100">
+            <span class="font-bold">Tryb Monetarny / Podatkowy (1642)</span>
+            <span class="text-[10px] opacity-75 font-mono">Livres (10) • Sous (20 zębów) • Deniers (12 zębów)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Baner statusu automatycznej demonstracji (ukryty domyślnie) -->
+      <div id="auto-demo-banner" class="hidden bg-amber-500/20 border-2 border-amber-400 rounded-xl p-3.5 flex items-center justify-between gap-4 animate-pulse">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">⚙️</span>
+          <div>
+            <div class="text-xs font-mono uppercase text-amber-300 font-bold">Trwa automatyczna sekwencja na maszynie</div>
+            <div id="auto-demo-step-text" class="text-sm sm:text-base font-semibold text-white">Inicjalizacja...</div>
+          </div>
+        </div>
+        <button onclick="stopAutoDemo()" class="px-3 py-1.5 rounded-lg bg-red-900/80 hover:bg-red-800 text-red-100 text-xs font-semibold border border-red-500/50">
+          Zatrzymaj
+        </button>
+      </div>
+
+      <!-- Pasek narzędzi szybkich akcji i suwaka listwy przysłaniającej -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-3 bg-stone-900/75 border border-stone-800 rounded-xl p-3.5">
+        
+        <!-- Kontrolka Ruchomej Listwy Przysłaniającej -->
+        <div class="md:col-span-5 flex items-center justify-between bg-stone-950/90 border border-amber-800/40 rounded-lg px-3.5 py-2.5">
+          <div>
+            <div class="text-[11px] font-mono uppercase text-amber-400">Listwa przysłaniająca bębny:</div>
+            <div id="slider-mode-status" class="text-xs sm:text-sm font-bold text-emerald-400">
+              TRYB DODAWANIA (Odsłonięty rząd dolny)
+            </div>
+          </div>
+          <button onclick="toggleBrassSlider()" class="brass-button px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shrink-0">
+            <span>↕ Przesuń listwę</span>
+          </button>
+        </div>
+
+        <!-- Przyciski szybkich demonstracji (Efekt Domina / Reset) -->
+        <div class="md:col-span-7 flex flex-wrap items-center justify-end gap-2">
+          <button onclick="setMaxBeforeOverflow()" class="px-3 py-2 rounded-lg bg-amber-950/90 hover:bg-amber-900 text-amber-200 border border-amber-700/70 text-xs font-semibold transition flex items-center gap-1.5">
+            <span>⚡ Ustaw Max (<span id="max-btn-label">99999</span>)</span>
+          </button>
+          <button onclick="triggerDominoCascadeDemo()" class="brass-button px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5">
+            <span>🌊 Pokaż Kaskadę Domina (+1 do Max)</span>
+          </button>
+          <button onclick="resetMachine()" class="px-3 py-2 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-600 text-xs font-semibold transition">
+            ↺ Wyzeruj (00000)
+          </button>
+        </div>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- FIZYCZNA OBUDOWA PASCALINY (MAHOŃ + MOSIĄDZ)                      -->
+      <!-- ================================================================= -->
+      <div class="mahogany-case rounded-3xl p-3 sm:p-6 md:p-8 relative">
+        
+        <!-- Mosiężna płyta wierzchnia -->
+        <div class="brass-plate rounded-2xl p-4 sm:p-6 relative">
+          
+          <!-- Dekoracyjne nity w rogach -->
+          <div class="brass-rivet absolute top-3 left-3"></div>
+          <div class="brass-rivet absolute top-3 right-3"></div>
+          <div class="brass-rivet absolute bottom-3 left-3"></div>
+          <div class="brass-rivet absolute bottom-3 right-3"></div>
+
+          <!-- Grawerunek tytułowy na mosiądzu -->
+          <div class="text-center mb-4">
+            <span class="font-title font-black text-xs sm:text-sm tracking-[0.25em] text-stone-900/90 drop-shadow-[0_1px_0_rgba(255,255,255,0.6)]">
+              ★ BLAISE PASCAL • ROUEN MDCXLII ★
+            </span>
+          </div>
+
+          <!-- GÓRNA CZĘŚĆ OBUDOWY: OKIENKA BĘBNÓW WYNIKOWYCH Z RUCHOMĄ LISTWĄ -->
+          <div class="relative bg-stone-950/90 border-4 border-amber-950 rounded-2xl p-3 sm:p-5 mb-6 shadow-inner">
+            
+            <!-- Etykiety rzędów po lewej stronie -->
+            <div class="flex items-center justify-between text-[11px] font-mono text-amber-300/90 mb-2 px-1">
+              <div class="flex items-center gap-2">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                <span>OKIENKA CYLINDRÓW ODCZYTU (Góra: Dopełnienie do odejmowania | Dół: Wartość do dodawania)</span>
+              </div>
+              <button onclick="toggleBrassSlider()" class="text-amber-300 underline hover:text-amber-100 text-[11px]">
+                Kliknij listwę, aby przełączyć tryb
+              </button>
+            </div>
+
+            <!-- Siatka 5 okienek bębnów + Ruchoma listwa mosiężna -->
+            <div class="relative">
+              <!-- Kontener 5 bębnów -->
+              <div id="drums-container" class="grid grid-cols-5 gap-2 sm:gap-4">
+                <!-- Generowane dynamicznie przez JS -->
+              </div>
+
+              <!-- RUCHOMA MOSIĘŻNA LISTWA PRZYSŁANIAJĄCA (SUWAK) -->
+              <!-- W trybie DODAWANIA zasłania górną połowę (dopełnienia). W trybie ODEJMOWANIA przesuwa się w dół i zasłania dolną połowę. -->
+              <div id="brass-sliding-bar" onclick="toggleBrassSlider()" title="Kliknij, aby przesunąć mosiężną listwę przysłaniającą"
+                   class="brass-slider-bar absolute left-0 right-0 top-[28px] h-[44px] rounded-lg cursor-pointer z-20 flex items-center justify-between px-3 sm:px-6 select-none">
+                <div class="flex items-center gap-2">
+                  <div class="brass-rivet"></div>
+                  <span class="font-title font-bold text-[10px] sm:text-xs tracking-widest text-stone-950 drop-shadow-[0_1px_0_rgba(255,255,255,0.7)]">
+                    PRZYSŁONA PASCALINY (SUWAK TRYBU)
+                  </span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span id="brass-bar-badge" class="text-[10px] sm:text-xs font-mono font-bold bg-stone-950/85 text-amber-300 px-2.5 py-0.5 rounded border border-amber-500/40">
+                    ZASŁONIĘTO: DOPEŁNIENIA (TRYB DODAWANIA)
+                  </span>
+                  <div class="brass-rivet"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Wskaźniki stanu zapadki Sautoir pod każdym bębnem -->
+            <div id="sautoir-status-row" class="grid grid-cols-5 gap-2 sm:gap-4 mt-3 pt-2 border-t border-stone-800">
+              <!-- Generowane dynamicznie przez JS -->
+            </div>
+          </div>
+
+          <!-- DOLNA CZĘŚĆ OBUDOWY: INTERAKTYWNE TARCZE WEJŚCIOWE (KOŁA SZPRYCHOWE) -->
+          <div id="wheels-container" class="grid grid-cols-1 sm:grid-cols-5 gap-4 sm:gap-3">
+            <!-- Generowane dynamicznie przez JS (5 kół SVG + przyciski +1, +5, Max-1) -->
+          </div>
+
+        </div>
+      </div>
+
+      <!-- PODSUMOWANIE WYNIKU I DZIENNIK ZDARZEŃ MECHANICZNYCH NA ŻYWO -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        
+        <!-- Karta odczytu całkowitego i telemetrii -->
+        <div class="lg:col-span-5 bg-stone-900/90 border border-amber-800/50 rounded-2xl p-4 sm:p-5 flex flex-col justify-between space-y-4">
+          <div>
+            <div class="text-xs font-mono uppercase text-amber-400 tracking-wider">Aktualny Odczyt Maszyny</div>
+            <div id="total-readout-primary" class="font-mono text-2xl sm:text-3xl font-bold text-amber-200 mt-1">
+              00000
+            </div>
+            <div id="total-readout-secondary" class="text-xs font-mono text-stone-400 mt-1">
+              Dopełnienie (rząd górny): 99999
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 pt-3 border-t border-stone-800 text-center">
+            <div class="bg-stone-950/80 p-2.5 rounded-xl border border-stone-800">
+              <div class="text-[10px] font-mono text-stone-400 uppercase">Pokonane zęby</div>
+              <div id="telemetry-total-teeth" class="font-mono text-lg font-bold text-amber-300">0</div>
+            </div>
+            <div class="bg-stone-950/80 p-2.5 rounded-xl border border-stone-800">
+              <div class="text-[10px] font-mono text-stone-400 uppercase">Skoki Sautoir</div>
+              <div id="telemetry-total-carries" class="font-mono text-lg font-bold text-emerald-400">0</div>
+            </div>
+            <div class="bg-stone-950/80 p-2.5 rounded-xl border border-stone-800">
+              <div class="text-[10px] font-mono text-stone-400 uppercase">Suma kątów</div>
+              <div id="telemetry-total-angle" class="font-mono text-lg font-bold text-sky-400">0°</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dziennik Zdarzeń Mechanicznych na żywo -->
+        <div class="lg:col-span-7 bg-stone-900/90 border border-amber-800/50 rounded-2xl p-4 sm:p-5 flex flex-col">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              <h3 class="text-xs font-mono uppercase tracking-wider text-amber-300 font-bold">
+                Dziennik Zdarzeń Mechanicznych (Telemetria Kół i Sautoir)
+              </h3>
+            </div>
+            <button onclick="clearMechanicalLog()" class="text-[11px] font-mono text-stone-400 hover:text-amber-300">
+              Wyczyść dziennik
+            </button>
+          </div>
+          <div id="mechanical-log" class="bg-stone-950 border border-stone-800 rounded-xl p-3 font-mono text-xs h-36 overflow-y-auto space-y-1.5 text-stone-300">
+            <!-- Wpisy dziennika -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- MODUŁ 2: LABORATORIUM PRZEKROJU "X-RAY" – SAUTOIR I KOŁA ZĘBATE       -->
+    <!-- ===================================================================== -->
+    <section id="modul-xray" class="scroll-mt-20 space-y-5">
+      <div class="bg-stone-900/90 border border-sky-800/50 rounded-2xl p-4 sm:p-6 shadow-xl">
+        
+        <!-- Nagłówek sekcji X-Ray -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-stone-800">
+          <div>
+            <div class="flex items-center gap-2 text-sky-400 text-xs font-mono uppercase tracking-widest mb-1">
+              <span>Moduł 02</span>
+              <span>•</span>
+              <span>Interaktywny Przekrój Mechaniczny 2D (Blueprint)</span>
+            </div>
+            <h2 class="font-title text-xl sm:text-2xl font-bold text-white">
+              Laboratorium „X-Ray”: Jak działa zapadka grawitacyjna Sautoir i jak liczy się zęby kół
+            </h2>
+            <p class="text-xs sm:text-sm text-stone-300 mt-0.5">
+              Obserwuj w przekroju bocznym jak kołki koła niższego rzędu unoszą ciężką dźwignię <strong class="text-amber-300">Sautoir</strong> przy ostatnich cyfrach, gromadząc energię potencjalną, aby w punkcie <span class="font-mono text-amber-300">Max → 0</span> opaść pod wpływem grawitacji i popchnąć sąsiednie koło o dokładnie 1 ząb.
+            </p>
+          </div>
+
+          <!-- Wybór liczby zębów badanego koła -->
+          <div class="flex flex-wrap items-center gap-2 shrink-0">
+            <span class="text-xs font-mono text-stone-400 mr-1">Badane koło:</span>
+            <button onclick="setLabTeeth(10)" id="lab-teeth-10" class="px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-sky-500 text-stone-950 shadow">
+              10 zębów (36°/ząb)
+            </button>
+            <button onclick="setLabTeeth(12)" id="lab-teeth-12" class="px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-stone-800 text-stone-300 hover:bg-stone-700">
+              12 zębów (30° - Deniers)
+            </button>
+            <button onclick="setLabTeeth(20)" id="lab-teeth-20" class="px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-stone-800 text-stone-300 hover:bg-stone-700">
+              20 zębów (18° - Sous)
+            </button>
+          </div>
+        </div>
+
+        <!-- Główna siatka: Canvas po lewej, Telemetria geometryczna po prawej -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-5">
+          
+          <!-- Interaktywny Canvas Blueprint -->
+          <div class="lg:col-span-8 flex flex-col space-y-3">
+            <div class="blueprint-grid rounded-2xl border-2 border-sky-900/80 overflow-hidden relative shadow-inner">
+              <canvas id="sautoir-canvas" width="860" height="460" class="w-full h-auto block"></canvas>
+            </div>
+
+            <!-- Przyciski sterowania przekrojem X-Ray -->
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-stone-950 p-3 rounded-xl border border-stone-800">
+              <div class="flex flex-wrap items-center gap-2">
+                <button onclick="stepLabWheel()" class="brass-button px-4 py-2 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-1.5">
+                  <span>⟳ Obróć +1 Ząb (<span id="lab-btn-step-deg">+36°</span>)</span>
+                </button>
+                <button onclick="setLabPreCarry()" class="px-3.5 py-2 rounded-lg bg-amber-950/90 hover:bg-amber-900 text-amber-200 border border-amber-700/70 text-xs font-semibold transition">
+                  🎯 Ustaw tuż przed przeniesieniem (N-2)
+                </button>
+              </div>
+              <div class="flex items-center gap-2">
+                <button id="lab-auto-btn" onclick="toggleLabAutoRotate()" class="px-3.5 py-2 rounded-lg bg-sky-900/70 hover:bg-sky-800 text-sky-200 border border-sky-600/50 text-xs font-semibold transition">
+                  ▶ Auto-obrót (Ciągły)
+                </button>
+                <button onclick="resetLabWheel()" class="px-3 py-2 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-semibold">
+                  Reset
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel wyliczeń geometrycznych i energii potencjalnej -->
+          <div class="lg:col-span-4 flex flex-col justify-between bg-stone-950/90 border border-stone-800 rounded-2xl p-4 sm:p-5 space-y-4">
+            <div class="space-y-3">
+              <h3 class="font-title text-sm font-bold text-sky-300 uppercase tracking-wider border-b border-stone-800 pb-2">
+                Parametry Kinematyczne i Geometryczne
+              </h3>
+
+              <!-- Aktualna faza Sautoir -->
+              <div class="bg-stone-900/90 p-3 rounded-xl border border-stone-800">
+                <div class="text-[11px] font-mono text-stone-400 uppercase">Aktualna Faza Mechanizmu Sautoir:</div>
+                <div id="lab-phase-title" class="font-mono text-sm font-bold text-emerald-400 mt-0.5">
+                  1. SPOCZYNEK SWOBODNY
+                </div>
+                <p id="lab-phase-desc" class="text-xs text-stone-300 mt-1 leading-relaxed">
+                  Kołek przeniesienia znajduje się poza zasięgiem ramienia. Zapadka spoczywa na ograniczniku, nie stawiając żadnego oporu dla ręki operatora.
+                </p>
+              </div>
+
+              <!-- Pasek Energii Potencjalnej Grawitacji -->
+              <div class="bg-stone-900/90 p-3 rounded-xl border border-stone-800">
+                <div class="flex justify-between text-xs font-mono mb-1.5">
+                  <span class="text-stone-400">Energia potencjalna ($E_p = mgh$):</span>
+                  <span id="lab-energy-pct" class="font-bold text-amber-400">0%</span>
+                </div>
+                <div class="w-full h-3 bg-stone-950 rounded-full overflow-hidden border border-stone-700">
+                  <div id="lab-energy-bar" class="h-full bg-gradient-to-r from-amber-600 via-amber-400 to-red-500 transition-all duration-200" style="width: 0%"></div>
+                </div>
+                <div class="text-[11px] font-mono text-stone-400 mt-1.5 flex justify-between">
+                  <span>Kąt uniesienia zapadki:</span>
+                  <span id="lab-sautoir-angle" class="text-amber-300 font-bold">0.0°</span>
+                </div>
+              </div>
+
+              <!-- Tabela dokładnych wyliczeń kół -->
+              <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+                <div class="bg-stone-900 p-2.5 rounded-lg border border-stone-800">
+                  <div class="text-[10px] text-stone-400">Liczba zębów ($N$):</div>
+                  <div id="lab-stat-teeth" class="text-base font-bold text-white">10 zębów</div>
+                </div>
+                <div class="bg-stone-900 p-2.5 rounded-lg border border-stone-800">
+                  <div class="text-[10px] text-stone-400">Podziałka ($\Delta\alpha = 360^\circ/N$):</div>
+                  <div id="lab-stat-pitch" class="text-base font-bold text-sky-400">36.0° / ząb</div>
+                </div>
+                <div class="bg-stone-900 p-2.5 rounded-lg border border-stone-800">
+                  <div class="text-[10px] text-stone-400">Pozycja koła dawcy:</div>
+                  <div id="lab-stat-pos" class="text-base font-bold text-amber-300">Cyfra 0 / 9</div>
+                </div>
+                <div class="bg-stone-900 p-2.5 rounded-lg border border-stone-800">
+                  <div class="text-[10px] text-stone-400">Kąt obrotu ($\theta$):</div>
+                  <div id="lab-stat-theta" class="text-base font-bold text-emerald-400">0.0°</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Wyjaśnienie zapadki jednokierunkowej -->
+            <div class="bg-sky-950/30 border border-sky-800/50 rounded-xl p-3 text-xs text-sky-100/90 space-y-1">
+              <div class="font-bold text-sky-300 flex items-center gap-1.5">
+                <span>🔒</span> Dlaczego jest tu zapadka jednokierunkowa?
+              </div>
+              <p class="text-[11px] leading-relaxed text-stone-300">
+                Górna zapadka blokująca (<em>cliquet de retenue</em>) pozwala kołom obracać się wyłącznie w jedną stronę. Zapobiega to zakleszczeniu ramienia Sautoir oraz stabilizuje bęben dokładnie w osi okienka odczytowego.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- MODUŁ 3: INTERAKTYWNY KALKULATOR ODEJMOWANIA METODĄ DOPEŁNIEŃ         -->
+    <!-- ===================================================================== -->
+    <section id="modul-odejmowanie" class="scroll-mt-20 space-y-5">
+      <div class="bg-stone-900/90 border border-amber-800/50 rounded-2xl p-4 sm:p-6 shadow-xl">
+        
+        <div class="border-b border-stone-800 pb-4 mb-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 text-amber-400 text-xs font-mono uppercase tracking-widest mb-1">
+              <span>Moduł 03</span>
+              <span>•</span>
+              <span>Arytmetyka Dopełnień do Dziewiątek (9's Complement)</span>
+            </div>
+            <h2 class="font-title text-xl sm:text-2xl font-bold text-amber-100">
+              Jak odejmować na maszynie, której koła kręcą się tylko w przód?
+            </h2>
+            <p class="text-xs sm:text-sm text-stone-300 mt-0.5">
+              Ponieważ zapadki Pascaliny uniemożliwiają obrót wsteczny, odejmowanie <span class="font-mono text-amber-300">A − B</span> realizuje się poprzez przesunięcie mosiężnej listwy w dół (na górny rząd dopełnień do 9) oraz wykonanie operacji dodawania.
+            </p>
+          </div>
+
+          <div class="bg-stone-950 border border-amber-800/40 rounded-xl px-4 py-2.5 font-mono text-xs text-amber-200 shrink-0">
+            Wzór bębna 10-zębnego:<br>
+            <strong class="text-amber-400 text-sm">Cyfra Górna = 9 − Cyfra Dolna</strong>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Formularz wejściowy A i B + Rozpisanie dopełnień -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="bg-stone-950 border border-stone-800 rounded-xl p-4 space-y-4">
+              <h3 class="text-xs font-mono uppercase tracking-wider text-amber-400 font-bold">
+                Wprowadź liczby do odjęcia (A − B):
+              </h3>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs text-stone-400 font-mono mb-1">Odjemna (A):</label>
+                  <input id="sub-input-a" type="number" min="1" max="99999" value="425" oninput="updateComplementCalculator()"
+                         class="w-full bg-stone-900 border border-amber-700/60 rounded-lg px-3 py-2 font-mono text-lg font-bold text-amber-200 focus:outline-none focus:border-amber-400">
+                </div>
+                <div>
+                  <label class="block text-xs text-stone-400 font-mono mb-1">Odjemnik (B):</label>
+                  <input id="sub-input-b" type="number" min="0" max="99999" value="178" oninput="updateComplementCalculator()"
+                         class="w-full bg-stone-900 border border-amber-700/60 rounded-lg px-3 py-2 font-mono text-lg font-bold text-amber-200 focus:outline-none focus:border-amber-400">
+                </div>
+              </div>
+
+              <!-- Przykłady jednym kliknięciem -->
+              <div class="flex flex-wrap items-center gap-1.5 text-xs">
+                <span class="text-stone-400 font-mono">Szybkie przykłady:</span>
+                <button onclick="setSubExample(425, 178)" class="px-2 py-1 rounded bg-stone-800 hover:bg-stone-700 text-amber-300 font-mono">425 − 178</button>
+                <button onclick="setSubExample(1000, 1)" class="px-2 py-1 rounded bg-stone-800 hover:bg-stone-700 text-amber-300 font-mono">1000 − 1</button>
+                <button onclick="setSubExample(5432, 2895)" class="px-2 py-1 rounded bg-stone-800 hover:bg-stone-700 text-amber-300 font-mono">5432 − 2895</button>
+              </div>
+
+              <!-- Rozpisanie tablicy dopełnień dla każdej z 5 kolumn -->
+              <div class="pt-2 border-t border-stone-800">
+                <div class="text-[11px] font-mono text-stone-400 mb-2">
+                  Rozkład cyfr i ich dopełnień do 9 (dla ustawienia początkowego bębnów):
+                </div>
+                <div id="complement-digits-table" class="grid grid-cols-5 gap-1.5 text-center font-mono">
+                  <!-- Generowane dynamicznie przez JS -->
+                </div>
+              </div>
+
+              <!-- Przycisk automatycznego wykonania na głównej maszynie -->
+              <button onclick="runAutomatedSubtractionOnSimulator()" class="w-full brass-button py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg">
+                <span>▶ Wykonaj tę operację automatycznie na symulatorze powyżej</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Instrukcja Krok po Kroku i dowód matematyczny -->
+          <div class="lg:col-span-7 bg-stone-950 border border-stone-800 rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-4">
+            <div>
+              <h3 class="text-xs font-mono uppercase tracking-wider text-amber-400 font-bold mb-3">
+                Algorytm Odejmowania na Pascalinie – Krok po Kroku:
+              </h3>
+              <div id="subtraction-steps-list" class="space-y-3 text-xs sm:text-sm">
+                <!-- Generowane dynamicznie przez JS -->
+              </div>
+            </div>
+
+            <!-- Matematyczne wyjaśnienie na dole -->
+            <div id="subtraction-math-proof" class="bg-amber-950/30 border border-amber-700/40 rounded-xl p-3.5 font-mono text-xs text-amber-100 space-y-1">
+              <!-- Generowane dynamicznie przez JS -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- MODUŁ 4: KOMPENDIUM DO PREZENTACJI (ŚCIĄGA INŻYNIERSKA)               -->
+    <!-- ===================================================================== -->
+    <section id="modul-kompendium" class="scroll-mt-20 space-y-5">
+      <div class="bg-stone-900/90 border border-amber-800/50 rounded-2xl p-4 sm:p-6 shadow-xl">
+        
+        <div class="border-b border-stone-800 pb-4 mb-6">
+          <div class="flex items-center gap-2 text-amber-400 text-xs font-mono uppercase tracking-widest mb-1">
+            <span>Moduł 04</span>
+            <span>•</span>
+            <span>Kompendium Inżynierskie & Ściąga na Prezentację Uniwersytecką</span>
+          </div>
+          <h2 class="font-title text-xl sm:text-2xl font-bold text-amber-100">
+            Kluczowe Zagadnienia Konstrukcyjne: Jak odpowiadać na pytania prowadzącego
+          </h2>
+        </div>
+
+        <!-- 3 Główne karty inżynierskie -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          
+          <!-- Karta 1: Jak liczy się koła zębate -->
+          <div class="bg-stone-950 border border-stone-800 rounded-2xl p-5 flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300 font-mono font-bold text-lg">
+                01
+              </div>
+              <h3 class="font-title text-lg font-bold text-amber-200">
+                Jak „liczy się” koła zębate? Podziały 10, 20 i 12
+              </h3>
+              <p class="text-xs sm:text-sm text-stone-300 leading-relaxed">
+                Liczba zębów ($z$) na kole wejściowym i bębnie zależy bezpośrednio od podstawy systemu liczbowego danej kolumny. W XVII-wiecznej Francji podatki liczono w systemie mieszanym:
+              </p>
+              <ul class="text-xs font-mono space-y-1.5 text-amber-200/90 bg-stone-900 p-3 rounded-xl border border-stone-800">
+                <li>• <strong>1 Livre</strong> = 20 Sous (koła Livres: $z = 10$, $\Delta\alpha = 36^\circ$)</li>
+                <li>• <strong>1 Sou</strong> = 20 części (koło Sous: $z = 20$, $\Delta\alpha = 18^\circ$)</li>
+                <li>• <strong>1 Denier</strong> = 1/12 Sou (koło Deniers: $z = 12$, $\Delta\alpha = 30^\circ$)</li>
+              </ul>
+            </div>
+            <div class="text-[11px] font-mono text-stone-400 border-t border-stone-800 pt-3">
+              Pełny obrót koła ($360^\circ$) zawsze wyzwala dokładnie 1 skok zapadki Sautoir, co daje przełożenie $12:1$, $20:1$ lub $10:1$.
+            </div>
+          </div>
+
+          <!-- Karta 2: Schickard (1623) vs Pascal (1642) -->
+          <div class="bg-stone-950 border border-stone-800 rounded-2xl p-5 flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-300 font-mono font-bold text-lg">
+                02
+              </div>
+              <h3 class="font-title text-lg font-bold text-emerald-300">
+                Dlaczego Schickard (1623) się zacinał, a Sautoir Pascala nie?
+              </h3>
+              <p class="text-xs sm:text-sm text-stone-300 leading-relaxed">
+                Zegar liczący Wilhelma Schickarda używał sztywnych jednoramiennych kół pośrednich. Przy operacji <span class="font-mono text-amber-300">9999 + 1</span> palec użytkownika musiał w jednym ułamku sekundy fizycznie przepchnąć wszystkie 5 osi naraz.
+              </p>
+              <div class="bg-stone-900 p-3 rounded-xl border border-stone-800 text-xs space-y-1">
+                <div class="text-red-400 font-semibold">✖ Schickard: Kumulacja tarcia ($F \propto \mu^n$)</div>
+                <p class="text-stone-400 text-[11px]">Opór rośnie wykładniczo z każdym rzędem, prowadząc do wyłamania mosiężnych zębów.</p>
+                <div class="text-emerald-400 font-semibold pt-1">✔ Pascal: Rozsprzęglenie grawitacyjne</div>
+                <p class="text-stone-400 text-[11px]">Sautoir gromadzi energię wcześniej (podczas cyfr 7–9) i opada samoczynnie pod własnym ciężarem jak kostki domina.</p>
+              </div>
+            </div>
+            <div class="text-[11px] font-mono text-stone-400 border-t border-stone-800 pt-3">
+              Wniosek: Sautoir oddziela siłę mięśni operatora od łańcucha propagacji przeniesień!
+            </div>
+          </div>
+
+          <!-- Karta 3: Przekładnia kątowa 90 stopni -->
+          <div class="bg-stone-950 border border-stone-800 rounded-2xl p-5 flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <div class="w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-300 font-mono font-bold text-lg">
+                03
+              </div>
+              <h3 class="font-title text-lg font-bold text-sky-300">
+                Przekładnia Kątowa 90° (Koła Koronowe / Palcowe)
+              </h3>
+              <p class="text-xs sm:text-sm text-stone-300 leading-relaxed">
+                Tarcze wejściowe leżą płasko na obudowie (oś pionowa), natomiast bębny z cyframi obracają się wewnątrz na osi poziomej, aby cyfry były dobrze widoczne z góry.
+              </p>
+              <div class="bg-stone-900 p-3 rounded-xl border border-stone-800 text-xs font-mono text-sky-200/90 space-y-1">
+                <div>1. Tarcza szprychowa (zewnętrzna)</div>
+                <div>2. Koło palcowe poziome (kołki pionowe)</div>
+                <div>3. Przekładnia kątowa $90^\circ$</div>
+                <div>4. Koło latarniowe + Cylinder odczytu</div>
+              </div>
+            </div>
+            <div class="text-[11px] font-mono text-stone-400 border-t border-stone-800 pt-3">
+              Zastosowanie kół palcowych (latarniowych) z epoki zegarów wieżowych zminimalizowało tarcie między mosiądzem a stalą.
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="max-w-7xl mx-auto px-6 py-8 border-t border-stone-800/80 text-center text-xs text-stone-500 font-mono">
+    Pascalina (1642) – Interaktywne Laboratorium Mechaniki i Arytmetyki • Projekt edukacyjny do prezentacji akademickiej
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- LOGIKA APLIKACJI I SILNIK FIZYCZNY / KINEMATYCZNY (JAVASCRIPT)        -->
+  <!-- ===================================================================== -->
+  <script>
+    /*************************************************************************
+     * 1. SYNTEZATOR DŹWIĘKÓW MECHANICZNYCH (WEB AUDIO API)
+     *************************************************************************/
+    let soundEnabled = true;
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playGearClick(freq = 680) {
+      if (!soundEnabled) return;
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(140, audioCtx.currentTime + 0.035);
+
+        gain.gain.setValueAtTime(0.14, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.035);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.04);
+      } catch (e) {
+        // Ignoruj błędy autoodtwarzania audio
+      }
+    }
+
+    function playSautoirClack() {
+      if (!soundEnabled) return;
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(320, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(85, audioCtx.currentTime + 0.09);
+
+        gain.gain.setValueAtTime(0.24, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.095);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+      } catch (e) {}
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('sound-icon').textContent = soundEnabled ? '🔊' : '🔇';
+      document.getElementById('sound-label').textContent = soundEnabled ? 'Dźwięk: WŁ.' : 'Dźwięk: WYŁ.';
+    }
+
+    /*************************************************************************
+     * 2. GŁÓWNY SYMULATOR PASCALINY (5 BĘBNÓW, TRYB DZIESIĘTNY I MONETARNY)
+     *************************************************************************/
+    const MACHINE_CONFIGS = {
+      decimal: [
+        { id: 0, name: 'Dziesiątki Tys.', shortUnit: '10⁴', teeth: 10 },
+        { id: 1, name: 'Tysiące', shortUnit: '10³', teeth: 10 },
+        { id: 2, name: 'Setki', shortUnit: '10²', teeth: 10 },
+        { id: 3, name: 'Dziesiątki', shortUnit: '10¹', teeth: 10 },
+        { id: 4, name: 'Jedności', shortUnit: '10⁰', teeth: 10 }
+      ],
+      monetary: [
+        { id: 0, name: 'Setki Livres', shortUnit: '100 L', teeth: 10 },
+        { id: 1, name: 'Dziesiątki Livres', shortUnit: '10 L', teeth: 10 },
+        { id: 2, name: 'Jedności Livres', shortUnit: '1 L', teeth: 10 },
+        { id: 3, name: 'Sous (Sole)', shortUnit: 'Sous (20)', teeth: 20 },
+        { id: 4, name: 'Deniers (Denary)', shortUnit: 'Den (12)', teeth: 12 }
+      ]
+    };
+
+    let currentMode = 'decimal';
+    let isSubtractionSliderDown = false; // false = DODAWANIE (zasłonięta góra), true = ODEJMOWANIE (zasłonięty dół)
+    let drumsState = [
+      { value: 0, angle: 0, sautoirState: 'rest' },
+      { value: 0, angle: 0, sautoirState: 'rest' },
+      { value: 0, angle: 0, sautoirState: 'rest' },
+      { value: 0, angle: 0, sautoirState: 'rest' },
+      { value: 0, angle: 0, sautoirState: 'rest' }
+    ];
+
+    let telemetryTeeth = 0;
+    let telemetryCarries = 0;
+    let telemetryAngle = 0;
+    let activeTimeouts = [];
+
+    function clearPendingAnimations() {
+      activeTimeouts.forEach(t => clearTimeout(t));
+      activeTimeouts = [];
+    }
+
+    function addLogEntry(message, type = 'info') {
+      const logEl = document.getElementById('mechanical-log');
+      if (!logEl) return;
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0];
+      const div = document.createElement('div');
+
+      let colorClass = 'text-stone-300';
+      if (type === 'carry') colorClass = 'text-amber-300 font-bold bg-amber-950/40 px-1.5 py-0.5 rounded border-l-2 border-amber-400';
+      if (type === 'action') colorClass = 'text-emerald-300';
+      if (type === 'mode') colorClass = 'text-sky-300';
+
+      div.className = `${colorClass} leading-snug`;
+      div.innerHTML = `<span class="text-stone-500">[${timeStr}]</span> ${message}`;
+      logEl.prepend(div);
+    }
+
+    function clearMechanicalLog() {
+      const logEl = document.getElementById('mechanical-log');
+      if (logEl) logEl.innerHTML = '';
+      addLogEntry('Dziennik zdarzeń wyczyszczony. Maszyna gotowa do pracy.', 'mode');
+    }
+
+    // Budowanie interfejsu bębnów i kół SVG
+    function buildMachineDOM() {
+      const config = MACHINE_CONFIGS[currentMode];
+      const drumsContainer = document.getElementById('drums-container');
+      const sautoirRow = document.getElementById('sautoir-status-row');
+      const wheelsContainer = document.getElementById('wheels-container');
+
+      drumsContainer.innerHTML = '';
+      sautoirRow.innerHTML = '';
+      wheelsContainer.innerHTML = '';
+
+      config.forEach((col, idx) => {
+        // 1. Okienko bębna (Górny rząd: Dopełnienie, Dolny rząd: Wartość bezpośrednia)
+        const drumCol = document.createElement('div');
+        drumCol.className = 'flex flex-col items-center';
+        drumCol.innerHTML = `
+          <div class="text-[10px] sm:text-xs font-mono font-bold text-amber-200/90 mb-1 text-center truncate w-full">
+            ${col.name} <span class="text-amber-400">(${col.teeth}z)</span>
+          </div>
+          <div id="drum-box-${idx}" class="drum-viewport w-full rounded-xl overflow-hidden flex flex-col items-center justify-between py-1.5 px-1 relative">
+            <!-- Górny rząd: Dopełnienie do odejmowania -->
+            <div class="w-full h-9 flex items-center justify-center border-b border-stone-800/80">
+              <span id="drum-comp-${idx}" class="font-mono text-lg sm:text-2xl font-bold text-amber-400/90 transition-all">
+                ${col.teeth - 1}
+              </span>
+            </div>
+            <!-- Dolny rząd: Wartość do dodawania -->
+            <div class="w-full h-9 flex items-center justify-center">
+              <span id="drum-val-${idx}" class="font-mono text-xl sm:text-2xl font-bold text-white transition-all">
+                0
+              </span>
+            </div>
+          </div>
+        `;
+        drumsContainer.appendChild(drumCol);
+
+        // 2. Wskaźnik zapadki Sautoir pod każdym bębnem
+        const sautoirBadge = document.createElement('div');
+        sautoirBadge.className = 'flex flex-col items-center text-center';
+        sautoirBadge.innerHTML = `
+          <div class="text-[9px] font-mono uppercase text-stone-400">Sautoir #${5 - idx}</div>
+          <div id="sautoir-pill-${idx}" class="mt-0.5 w-full py-1 px-1.5 rounded text-[10px] font-mono font-bold bg-stone-900 text-stone-400 border border-stone-800 truncate">
+            SPOCZYNEK
+          </div>
+        `;
+        sautoirRow.appendChild(sautoirBadge);
+
+        // 3. Interaktywne koło wejściowe SVG + przyciski szybkiego wyboru
+        const wheelCard = document.createElement('div');
+        wheelCard.className = 'bg-stone-950/75 border border-amber-900/60 rounded-2xl p-2.5 flex flex-col items-center shadow-lg';
+        wheelCard.innerHTML = `
+          <div class="w-full flex items-center justify-between text-[10px] font-mono text-amber-300/90 mb-1 px-1">
+            <span>${col.shortUnit}</span>
+            <span>Δα = ${(360 / col.teeth).toFixed(0)}°</span>
+          </div>
+          <!-- SVG Tarczy szprychowej -->
+          <div class="relative w-36 h-36 sm:w-full sm:max-w-[165px] aspect-square flex items-center justify-center">
+            ${generateWheelSVG(idx, col.teeth)}
+          </div>
+          <!-- Wygodne przyciski pod tarczą -->
+          <div class="grid grid-cols-3 gap-1 w-full mt-2">
+            <button onclick="rotateWheel(${idx}, 1)" class="brass-button py-1 rounded text-[11px] font-mono font-bold" title="Dodaj 1 ząb">
+              +1
+            </button>
+            <button onclick="rotateWheel(${idx}, 5)" class="brass-button py-1 rounded text-[11px] font-mono font-bold" title="Dodaj 5 zębów">
+              +5
+            </button>
+            <button onclick="rotateWheel(${idx}, ${col.teeth - 1})" class="brass-button py-1 rounded text-[11px] font-mono font-bold" title="Dodaj maksymalny skok (${col.teeth - 1})">
+              +${col.teeth - 1}
+            </button>
+          </div>
+        `;
+        wheelsContainer.appendChild(wheelCard);
+      });
+
+      updateMachineVisuals();
+    }
+
+    // Generowanie tarczy szprychowej SVG z klikalnymi otworami i nieruchomą stopką
+    function generateWheelSVG(colIdx, teethCount) {
+      const cx = 100, cy = 100;
+      const outerR = 88;
+      const holeR = teethCount === 20 ? 7.2 : (teethCount === 12 ? 9.5 : 10.5);
+      const holeRingR = 66;
+      const stepDeg = 360 / teethCount;
+
+      // Stopka (potence) umieszczona na dole po prawej (kąt 60 stopni w układzie standardowym SVG)
+      // Otwory 1..(teethCount-1) rozmieszczone przeciwnie do ruchu wskazówek zegara od stopki,
+      // aby po kliknięciu cyfry k tarcza obróciła się zgodnie z ruchem wskazówek zegara o k * stepDeg aż do stopki!
+      const stopAngleDeg = 55;
+
+      let spokesAndHoles = '';
+      let crownLabelRing = '';
+
+      for (let k = 0; k < teethCount; k++) {
+        // Pozycja k-tego otworu (dla k=0 przy stopce, dla k=1..N-1 cofamy kąt, by kręcić CW do stopki)
+        const angleDeg = stopAngleDeg - (k * stepDeg);
+        const rad = (angleDeg * Math.PI) / 180;
+        const hx = cx + holeRingR * Math.cos(rad);
+        const hy = cy + holeRingR * Math.sin(rad);
+
+        // Szprycha w grupie wirnika
+        spokesAndHoles += `
+          <line x1="${cx}" y1="${cy}" x2="${hx.toFixed(1)}" y2="${hy.toFixed(1)}"
+                stroke="#7a560d" stroke-width="${teethCount === 20 ? 2 : 3}" />
+          <circle cx="${hx.toFixed(1)}" cy="${hy.toFixed(1)}" r="${holeR - 2}"
+                  fill="#160f07" stroke="#f7e39c" stroke-width="1.2" />
+        `;
+
+        // Klikalny otwór wejściowy na nieruchomej koronie (dla k > 0 dodaje +k zębów, dla k = 0 dodaje +1 ząb pomocniczo)
+        const clickStep = k === 0 ? 1 : k;
+        const labelText = k === 0 ? '•' : k;
+        const fontSize = teethCount === 20 ? '7.5' : '9.5';
+
+        crownLabelRing += `
+          <g class="cursor-pointer group" onclick="rotateWheel(${colIdx}, ${clickStep})">
+            <circle cx="${hx.toFixed(1)}" cy="${hy.toFixed(1)}" r="${holeR}"
+                    fill="transparent" class="group-hover:fill-amber-400/30 transition-colors" />
+            <text x="${hx.toFixed(1)}" y="${(hy + 3.2).toFixed(1)}"
+                  text-anchor="middle" fill="#fef3c7" font-family="JetBrains Mono, monospace"
+                  font-weight="bold" font-size="${fontSize}" class="pointer-events-none select-none">
+              ${labelText}
+            </text>
+          </g>
+        `;
+      }
+
+      // Współrzędne nieruchomej metalowej stopki (potence)
+      const stopRad = (stopAngleDeg * Math.PI) / 180;
+      const sx = cx + (holeRingR + 4) * Math.cos(stopRad);
+      const sy = cy + (holeRingR + 4) * Math.sin(stopRad);
+
+      return `
+        <svg viewBox="0 0 200 200" class="w-full h-full select-none overflow-visible">
+          <defs>
+            <radialGradient id="wheelGrad-${colIdx}" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#f8e49b" />
+              <stop offset="65%" stop-color="#c69320" />
+              <stop offset="100%" stop-color="#6e4e08" />
+            </radialGradient>
+          </defs>
+
+          <!-- Cień i zewnętrzny pierścień tarczy -->
+          <circle cx="100" cy="100" r="${outerR + 4}" fill="#1a0f05" stroke="#855f12" stroke-width="2" />
+          <circle cx="100" cy="100" r="${outerR}" fill="url(#wheelGrad-${colIdx})" stroke="#473004" stroke-width="2" />
+
+          <!-- Ruchomy wirnik koła szprychowego (obraca się o kąt angle) -->
+          <g id="wheel-rotor-${colIdx}" class="wheel-rotor">
+            ${spokesAndHoles}
+            <!-- Piasta centralna -->
+            <circle cx="100" cy="100" r="22" fill="#2c1d06" stroke="#f6dfa0" stroke-width="2" />
+            <circle cx="100" cy="100" r="8" fill="#d4af37" />
+          </g>
+
+          <!-- Klikalne otwory i cyfry wejściowe -->
+          ${crownLabelRing}
+
+          <!-- Nieruchoma metalowa stopka (blokada rysika na dole po prawej) -->
+          <g title="Nieruchoma stopka oporowa (Potence)">
+            <path d="M 185 165 L ${sx.toFixed(1)} ${sy.toFixed(1)}" stroke="#e2e8f0" stroke-width="7" stroke-linecap="round" />
+            <path d="M 185 165 L ${sx.toFixed(1)} ${sy.toFixed(1)}" stroke="#475569" stroke-width="3" stroke-linecap="round" />
+            <circle cx="185" cy="165" r="5" fill="#94a3b8" stroke="#1e293b" stroke-width="1.5" />
+          </g>
+        </svg>
+      `;
+    }
+
+    // Obrót koła i kaskadowy mechanizm przeniesienia Sautoir
+    function rotateWheel(colIdx, stepsToAdd, isCarry = false) {
+      if (colIdx < 0 || colIdx >= 5 || stepsToAdd <= 0) return;
+
+      const config = MACHINE_CONFIGS[currentMode][colIdx];
+      const teeth = config.teeth;
+      const stepAngle = 360 / teeth;
+
+      const oldVal = drumsState[colIdx].value;
+      const newValRaw = oldVal + stepsToAdd;
+      const carriesTriggered = Math.floor(newValRaw / teeth);
+      const newVal = newValRaw % teeth;
+
+      const deltaAngle = stepsToAdd * stepAngle;
+      drumsState[colIdx].value = newVal;
+      drumsState[colIdx].angle += deltaAngle;
+
+      // Statystyki telemetryczne
+      telemetryTeeth += stepsToAdd;
+      telemetryAngle += deltaAngle;
+
+      if (isCarry) {
+        playSautoirClack();
+        addLogEntry(
+          `⚡ <strong>SKOK SAUTOIR → [${config.name}]</strong>: Dźwignia opadła grawitacyjnie i popchnęła koło o +1 ząb (+${stepAngle.toFixed(0)}°). Stan: <strong>${oldVal} → ${newVal}</strong>.`,
+          'carry'
+        );
+      } else {
+        playGearClick();
+        addLogEntry(
+          `Ruch tarczy <strong>[${config.name}]</strong>: +${stepsToAdd} zębów (obrót +${deltaAngle.toFixed(0)}°). Bęben: <strong>${oldVal} → ${newVal}</strong>.`,
+          'action'
+        );
+      }
+
+      // Aktualizacja stanu zapadki Sautoir na tym bębnie
+      const liftThreshold = Math.max(teeth - 3, Math.floor(teeth * 0.75));
+      if (carriesTriggered > 0) {
+        drumsState[colIdx].sautoirState = 'jump';
+        const drumBox = document.getElementById(`drum-box-${colIdx}`);
+        if (drumBox) {
+          drumBox.classList.remove('sautoir-jump-active');
+          void drumBox.offsetWidth;
+          drumBox.classList.add('sautoir-jump-active');
+        }
+      } else if (newVal >= liftThreshold) {
+        drumsState[colIdx].sautoirState = 'lifting';
+      } else {
+        drumsState[colIdx].sautoirState = 'rest';
+      }
+
+      updateMachineVisuals();
+
+      // Jeśli nastąpiło przejście przez maksimum (N-1 -> 0), wyzwalamy kaskadowy Sautoir do lewego sąsiada z opóźnieniem 250ms!
+      if (carriesTriggered > 0) {
+        telemetryCarries += carriesTriggered;
+        updateMachineVisuals();
+
+        if (colIdx > 0) {
+          const timeoutId = setTimeout(() => {
+            // Po wykonaniu skoku przywróć stan zapadki zależnie od nowej cyfry
+            drumsState[colIdx].sautoirState = drumsState[colIdx].value >= liftThreshold ? 'lifting' : 'rest';
+            rotateWheel(colIdx - 1, carriesTriggered, true);
+          }, 250);
+          activeTimeouts.push(timeoutId);
+        } else {
+          addLogEntry(
+            `⚠️ Przepełnienie najwyższego rzędu [${config.name}] – impuls Sautoir wychodzi poza skrajnie lewy bęben (odrzucona jedynka).`,
+            'carry'
+          );
+          const timeoutId = setTimeout(() => {
+            drumsState[colIdx].sautoirState = drumsState[colIdx].value >= liftThreshold ? 'lifting' : 'rest';
+            updateMachineVisuals();
+          }, 500);
+          activeTimeouts.push(timeoutId);
+        }
+      }
+    }
+
+    // Aktualizacja wizualna wszystkich bębnów, kół, listwy i odczytów
+    function updateMachineVisuals() {
+      const config = MACHINE_CONFIGS[currentMode];
+
+      config.forEach((col, idx) => {
+        const state = drumsState[idx];
+        const complementVal = (col.teeth - 1) - state.value;
+
+        const valEl = document.getElementById(`drum-val-${idx}`);
+        const compEl = document.getElementById(`drum-comp-${idx}`);
+        const rotorEl = document.getElementById(`wheel-rotor-${idx}`);
+        const pillEl = document.getElementById(`sautoir-pill-${idx}`);
+
+        if (valEl) valEl.textContent = state.value;
+        if (compEl) compEl.textContent = complementVal;
+        if (rotorEl) {
+          rotorEl.style.transform = `rotate(${state.angle}deg)`;
+        }
+
+        if (pillEl) {
+          if (state.sautoirState === 'jump') {
+            pillEl.className = 'mt-0.5 w-full py-1 px-1.5 rounded text-[10px] font-mono font-bold bg-amber-500 text-stone-950 border border-amber-300 shadow-lg animate-bounce';
+            pillEl.textContent = '⚡ SKOK GRAWITACYJNY!';
+          } else if (state.sautoirState === 'lifting') {
+            pillEl.className = 'mt-0.5 w-full py-1 px-1.5 rounded text-[10px] font-mono font-bold bg-amber-950/90 text-amber-300 border border-amber-500/60';
+            pillEl.textContent = '▲ UNOSZENIE (ŁADOWANIE)';
+          } else {
+            pillEl.className = 'mt-0.5 w-full py-1 px-1.5 rounded text-[10px] font-mono font-bold bg-stone-900 text-stone-400 border border-stone-800';
+            pillEl.textContent = 'SPOCZYNEK';
+          }
+        }
+      });
+
+      // Aktualizacja pozycji mosiężnej listwy przysłaniającej
+      const sliderBar = document.getElementById('brass-sliding-bar');
+      const sliderStatus = document.getElementById('slider-mode-status');
+      const barBadge = document.getElementById('brass-bar-badge');
+
+      if (sliderBar) {
+        if (isSubtractionSliderDown) {
+          // Przesunięta w dół – zasłania dolny rząd, odsłania górny (DOPEŁNIENIA / ODEJMOWANIE)
+          sliderBar.style.transform = 'translateY(38px)';
+          sliderStatus.textContent = 'TRYB ODEJMOWANIA (Odsłonięty rząd górny – Dopełnienia)';
+          sliderStatus.className = 'text-xs sm:text-sm font-bold text-amber-400';
+          barBadge.textContent = 'ODSŁONIĘTO: DOPEŁNIENIA (TRYB ODEJMOWANIA)';
+        } else {
+          // Na górze – zasłania górny rząd, odsłania dolny (DODAWANIE)
+          sliderBar.style.transform = 'translateY(0px)';
+          sliderStatus.textContent = 'TRYB DODAWANIA (Odsłonięty rząd dolny – Wartość wprost)';
+          sliderStatus.className = 'text-xs sm:text-sm font-bold text-emerald-400';
+          barBadge.textContent = 'ZASŁONIĘTO: DOPEŁNIENIA (TRYB DODAWANIA)';
+        }
+      }
+
+      // Aktualizacja odczytu całkowitego
+      const primaryReadout = document.getElementById('total-readout-primary');
+      const secondaryReadout = document.getElementById('total-readout-secondary');
+
+      if (currentMode === 'decimal') {
+        const directStr = drumsState.map(d => d.value).join('');
+        const compStr = drumsState.map((d, i) => (config[i].teeth - 1) - d.value).join('');
+        const activeNumber = parseInt(directStr, 10);
+
+        if (!isSubtractionSliderDown) {
+          primaryReadout.textContent = `${directStr} (${activeNumber.toLocaleString('pl-PL')})`;
+          secondaryReadout.textContent = `Rząd górny (dopełnienie do 99999): ${compStr}`;
+        } else {
+          primaryReadout.textContent = `${compStr} (Dopełnienie odczytywane z góry)`;
+          secondaryReadout.textContent = `Rząd dolny (zasłonięty listwą): ${directStr}`;
+        }
+      } else {
+        const livres = drumsState[0].value * 100 + drumsState[1].value * 10 + drumsState[2].value;
+        const sous = drumsState[3].value;
+        const deniers = drumsState[4].value;
+        primaryReadout.textContent = `${livres} Livres • ${sous} Sous • ${deniers} Deniers`;
+        secondaryReadout.textContent = `Dopełnienie monetarne: ${999 - livres} L • ${19 - sous} S • ${11 - deniers} D`;
+      }
+
+      document.getElementById('telemetry-total-teeth').textContent = telemetryTeeth;
+      document.getElementById('telemetry-total-carries').textContent = telemetryCarries;
+      document.getElementById('telemetry-total-angle').textContent = `${Math.round(telemetryAngle)}°`;
+    }
+
+    // Przełączanie położenia mosiężnej listwy
+    function toggleBrassSlider(forceState = null) {
+      if (forceState !== null) {
+        isSubtractionSliderDown = forceState;
+      } else {
+        isSubtractionSliderDown = !isSubtractionSliderDown;
+      }
+      playGearClick(420);
+      addLogEntry(
+        `Przesunięto mosiężną listwę przysłaniającą: <strong>${isSubtractionSliderDown ? 'TRYB ODEJMOWANIA (Dopełnienia)' : 'TRYB DODAWANIA (Wartość bezpośrednia)'}</strong>.`,
+        'mode'
+      );
+      updateMachineVisuals();
+    }
+
+    // Przełączanie trybu maszyny: Dziesiętny vs Monetarny
+    function setMachineMode(mode) {
+      stopAutoDemo();
+      clearPendingAnimations();
+      currentMode = mode;
+
+      const btnDec = document.getElementById('mode-btn-decimal');
+      const btnMon = document.getElementById('mode-btn-monetary');
+      const maxLabel = document.getElementById('max-btn-label');
+
+      if (mode === 'decimal') {
+        btnDec.className = 'flex-1 lg:flex-initial px-3.5 py-2 rounded-lg text-xs font-semibold transition flex flex-col items-center sm:items-start bg-amber-500 text-stone-950 shadow';
+        btnMon.className = 'flex-1 lg:flex-initial px-3.5 py-2 rounded-lg text-xs font-semibold transition flex flex-col items-center sm:items-start text-amber-200/80 hover:text-amber-100';
+        maxLabel.textContent = '99999';
+      } else {
+        btnMon.className = 'flex-1 lg:flex-initial px-3.5 py-2 rounded-lg text-xs font-semibold transition flex flex-col items-center sm:items-start bg-amber-500 text-stone-950 shadow';
+        btnDec.className = 'flex-1 lg:flex-initial px-3.5 py-2 rounded-lg text-xs font-semibold transition flex flex-col items-center sm:items-start text-amber-200/80 hover:text-amber-100';
+        maxLabel.textContent = '999L 19S 11D';
+      }
+
+      drumsState = [
+        { value: 0, angle: 0, sautoirState: 'rest' },
+        { value: 0, angle: 0, sautoirState: 'rest' },
+        { value: 0, angle: 0, sautoirState: 'rest' },
+        { value: 0, angle: 0, sautoirState: 'rest' },
+        { value: 0, angle: 0, sautoirState: 'rest' }
+      ];
+      buildMachineDOM();
+      addLogEntry(
+        `Zmieniono architekturę przekładni na: <strong>${mode === 'decimal' ? 'Tryb Dziesiętny (10-10-10-10-10)' : 'Historyczny Tryb Podatkowy 1642 (10-10-10-20-12)'}</strong>.`,
+        'mode'
+      );
+    }
+
+    function resetMachine() {
+      stopAutoDemo();
+      clearPendingAnimations();
+      drumsState.forEach(d => {
+        d.value = 0;
+        d.angle = 0;
+        d.sautoirState = 'rest';
+      });
+      telemetryTeeth = 0;
+      telemetryCarries = 0;
+      telemetryAngle = 0;
+      playGearClick(520);
+      updateMachineVisuals();
+      addLogEntry('Wyzerowano wszystkie 5 bębnów maszyny (stan początkowy 00000).', 'mode');
+    }
+
+    function setMaxBeforeOverflow() {
+      stopAutoDemo();
+      clearPendingAnimations();
+      const config = MACHINE_CONFIGS[currentMode];
+      config.forEach((col, idx) => {
+        drumsState[idx].value = col.teeth - 1;
+        drumsState[idx].angle = (col.teeth - 1) * (360 / col.teeth);
+        drumsState[idx].sautoirState = 'lifting';
+      });
+      playGearClick(600);
+      updateMachineVisuals();
+      addLogEntry(
+        `Ustawiono wszystkie bębny w pozycji krytycznej (Max-1). Wszystkie 5 zapadek Sautoir uniesione na kołkach (100% energii potencjalnej)! Dodaj +1 na prawym kole, aby wyzwolić kaskadę.`,
+        'carry'
+      );
+    }
+
+    function triggerDominoCascadeDemo() {
+      setMaxBeforeOverflow();
+      const t = setTimeout(() => {
+        addLogEntry('🌊 Uruchomiono demonstrację kaskady domina: wprowadzanie +1 na skrajnie prawym kole...', 'carry');
+        rotateWheel(4, 1, false);
+      }, 450);
+      activeTimeouts.push(t);
+    }
+
+    /*************************************************************************
+     * 3. MODUŁ 2: LABORATORIUM PRZEKROJU "X-RAY" (CANVAS 2D)
+     *************************************************************************/
+    let labTeeth = 10;
+    let labWheelAngle = 0;      // Aktualny kąt koła dawcy (stopnie)
+    let labTargetAngle = 0;     // Docelowy kąt koła dawcy
+    let labReceiverAngle = 0;   // Aktualny kąt koła biorcy
+    let labReceiverTarget = 0;  // Docelowy kąt koła biorcy
+    let labAutoRotate = false;
+    let labJumpFlash = 0;
+
+    function setLabTeeth(n) {
+      labTeeth = n;
+      labWheelAngle = 0;
+      labTargetAngle = 0;
+      labReceiverAngle = 0;
+      labReceiverTarget = 0;
+
+      [10, 12, 20].forEach(val => {
+        const btn = document.getElementById(`lab-teeth-${val}`);
+        if (val === n) {
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-sky-500 text-stone-950 shadow';
+        } else {
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-stone-800 text-stone-300 hover:bg-stone-700';
+        }
+      });
+
+      const pitch = 360 / n;
+      document.getElementById('lab-btn-step-deg').textContent = `+${pitch.toFixed(0)}°`;
+      document.getElementById('lab-stat-teeth').textContent = `${n} zębów`;
+      document.getElementById('lab-stat-pitch').textContent = `${pitch.toFixed(1)}° / ząb`;
+      updateLabStats();
+    }
+
+    function stepLabWheel() {
+      const pitch = 360 / labTeeth;
+      const prevStep = Math.round(labTargetAngle / pitch);
+      const nextStep = prevStep + 1;
+      labTargetAngle = nextStep * pitch;
+      playGearClick(720);
+
+      // Sprawdź czy przekraczamy pełny obrót (N-1 -> 0)
+      if (nextStep % labTeeth === 0 && nextStep > 0) {
+        labReceiverTarget += 36; // Koło biorcy (10-zębne) przesuwa się o 1 ząb (36°)
+        labJumpFlash = 1.0;
+        setTimeout(() => playSautoirClack(), 140);
+      }
+    }
+
+    function setLabPreCarry() {
+      labAutoRotate = false;
+      updateLabAutoBtn();
+      const pitch = 360 / labTeeth;
+      const targetDigit = labTeeth - 2;
+      const currentCycles = Math.floor(labTargetAngle / 360);
+      labTargetAngle = currentCycles * 360 + targetDigit * pitch;
+      labWheelAngle = labTargetAngle;
+      playGearClick(540);
+      updateLabStats();
+    }
+
+    function toggleLabAutoRotate() {
+      labAutoRotate = !labAutoRotate;
+      updateLabAutoBtn();
+    }
+
+    function updateLabAutoBtn() {
+      const btn = document.getElementById('lab-auto-btn');
+      if (labAutoRotate) {
+        btn.textContent = '⏸ Zatrzymaj Auto-obrót';
+        btn.className = 'px-3.5 py-2 rounded-lg bg-amber-500 text-stone-950 font-bold text-xs transition';
+      } else {
+        btn.textContent = '▶ Auto-obrót (Ciągły)';
+        btn.className = 'px-3.5 py-2 rounded-lg bg-sky-900/70 hover:bg-sky-800 text-sky-200 border border-sky-600/50 text-xs font-semibold transition';
+      }
+    }
+
+    function resetLabWheel() {
+      labAutoRotate = false;
+      updateLabAutoBtn();
+      labWheelAngle = 0;
+      labTargetAngle = 0;
+      labReceiverAngle = 0;
+      labReceiverTarget = 0;
+      updateLabStats();
+    }
+
+    // Obliczanie uniesienia zapadki Sautoir w funkcji znormalizowanego kąta koła (0..360°)
+    function computeSautoirLift(normAngleDeg) {
+      // Faza unoszenia zaczyna się przy 70% obrotu (np. od cyfry 7 do 9.85),
+      // a przy 355°..360° następuje gwałtowny spadek grawitacyjny!
+      const liftStart = 245;
+      const dropPoint = 352;
+      if (normAngleDeg < liftStart) return { liftPct: 0, phase: 'rest' };
+      if (normAngleDeg >= liftStart && normAngleDeg <= dropPoint) {
+        const pct = (normAngleDeg - liftStart) / (dropPoint - liftStart);
+        return { liftPct: Math.min(1, Math.max(0, pct)), phase: pct > 0.85 ? 'peak' : 'lifting' };
+      }
+      // Faza opadania grawitacyjnego (352°..360°)
+      const dropProgress = (normAngleDeg - dropPoint) / (360 - dropPoint);
+      return { liftPct: Math.max(0, 1 - dropProgress), phase: 'drop' };
+    }
+
+    function updateLabStats() {
+      const normAngle = ((labWheelAngle % 360) + 360) % 360;
+      const pitch = 360 / labTeeth;
+      const currentDigit = Math.floor(((normAngle + pitch * 0.25) % 360) / pitch) % labTeeth;
+      const sautoirInfo = computeSautoirLift(normAngle);
+      const energyPct = Math.round(sautoirInfo.liftPct * 100);
+      const liftDeg = (sautoirInfo.liftPct * 28).toFixed(1);
+
+      document.getElementById('lab-stat-pos').textContent = `Cyfra ${currentDigit} / ${labTeeth - 1}`;
+      document.getElementById('lab-stat-theta').textContent = `${normAngle.toFixed(1)}°`;
+      document.getElementById('lab-energy-pct').textContent = `${energyPct}%`;
+      document.getElementById('lab-energy-bar').style.width = `${energyPct}%`;
+      document.getElementById('lab-sautoir-angle').textContent = `+${liftDeg}°`;
+
+      const titleEl = document.getElementById('lab-phase-title');
+      const descEl = document.getElementById('lab-phase-desc');
+
+      if (sautoirInfo.phase === 'rest') {
+        titleEl.textContent = '1. SPOCZYNEK SWOBODNY';
+        titleEl.className = 'font-mono text-sm font-bold text-emerald-400 mt-0.5';
+        descEl.textContent = 'Kołek przeniesienia obraca się swobodnie. Zapadka Sautoir spoczywa w dole i nie obciąża osi napędowej.';
+      } else if (sautoirInfo.phase === 'lifting') {
+        titleEl.textContent = '2. WZNOSZENIE NA KOŁKU (ŁADOWANIE Ep)';
+        titleEl.className = 'font-mono text-sm font-bold text-amber-300 mt-0.5';
+        descEl.textContent = 'Kołek boczny koła dawcy zahacza o krzywkę Sautoir i unosi ciężkie ramię do góry, magazynując energię potencjalną grawitacji.';
+      } else if (sautoirInfo.phase === 'peak') {
+        titleEl.textContent = '3. PUNKT KRYTYCZNY (SZCZYT N-1)';
+        titleEl.className = 'font-mono text-sm font-bold text-orange-400 mt-0.5';
+        descEl.textContent = 'Zapadka osiągnęła maksymalny pułap nad kolejnym zębem koła biorcy. Kolejne drgnięcie uwolni kołek!';
+      } else {
+        titleEl.textContent = '4. SKOK GRAWITACYJNY! (PRZENIESIENIE +1)';
+        titleEl.className = 'font-mono text-sm font-bold text-red-400 mt-0.5';
+        descEl.textContent = 'Kołek wysunął się spod zapadki! Ciężar Sautoir opada grawitacyjnie i popycha koło wyższego rzędu o 1 ząb.';
+      }
+    }
+
+    // Rysowanie koła zębatego na Canvasie 2D
+    function drawGear2D(ctx, cx, cy, radius, teeth, angleDeg, fillColor, strokeColor, labelDigits = true) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate((angleDeg * Math.PI) / 180);
+
+      const outerR = radius + 11;
+      const innerR = radius - 5;
+      const step = (Math.PI * 2) / teeth;
+
+      ctx.beginPath();
+      for (let i = 0; i < teeth; i++) {
+        const a0 = i * step;
+        const a1 = a0 + step * 0.22;
+        const a2 = a0 + step * 0.45;
+        const a3 = a0 + step * 0.68;
+
+        ctx.lineTo(Math.cos(a0) * innerR, Math.sin(a0) * innerR);
+        ctx.lineTo(Math.cos(a1) * outerR, Math.sin(a1) * outerR);
+        ctx.lineTo(Math.cos(a2) * outerR, Math.sin(a2) * outerR);
+        ctx.lineTo(Math.cos(a3) * innerR, Math.sin(a3) * innerR);
+      }
+      ctx.closePath();
+      ctx.fillStyle = fillColor;
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = strokeColor;
+      ctx.stroke();
+
+      // Wewnętrzny wieniec i szprychy
+      ctx.beginPath();
+      ctx.arc(0, 0, innerR - 14, 0, Math.PI * 2);
+      ctx.fillStyle = '#091520';
+      ctx.fill();
+      ctx.strokeStyle = strokeColor;
+      ctx.stroke();
+
+      for (let s = 0; s < 5; s++) {
+        const sa = (s * Math.PI * 2) / 5;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(Math.cos(sa) * (innerR - 14), Math.sin(sa) * (innerR - 14));
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = strokeColor;
+        ctx.stroke();
+      }
+
+      // Cyfry na obwodzie koła
+      if (labelDigits) {
+        ctx.fillStyle = '#fef08a';
+        ctx.font = `bold ${teeth === 20 ? '10px' : '12px'} "JetBrains Mono", monospace`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        for (let i = 0; i < teeth; i++) {
+          // Dopasowanie żeby aktualna cyfra była na górze (kąt -90 deg)
+          const digitAngle = -i * step - Math.PI / 2;
+          const tx = Math.cos(digitAngle) * (innerR - 7);
+          const ty = Math.sin(digitAngle) * (innerR - 7);
+          ctx.fillText(String(i), tx, ty);
+        }
+      }
+
+      // Oś centralna
+      ctx.beginPath();
+      ctx.arc(0, 0, 14, 0, Math.PI * 2);
+      ctx.fillStyle = '#e2c15a';
+      ctx.fill();
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    // Pętla renderująca przekrój X-Ray na Canvasie
+    function renderSautoirCanvas() {
+      const canvas = document.getElementById('sautoir-canvas');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width;
+        const H = canvas.height;
+
+        // Fizyka płynnego obrotu w laboratorium
+        if (labAutoRotate) {
+          const prevCycle = Math.floor(labWheelAngle / 360);
+          labWheelAngle += 0.9;
+          labTargetAngle = labWheelAngle;
+          const newCycle = Math.floor(labWheelAngle / 360);
+          if (newCycle > prevCycle) {
+            labReceiverTarget += 36;
+            labJumpFlash = 1.0;
+            playSautoirClack();
+          }
+        } else {
+          labWheelAngle += (labTargetAngle - labWheelAngle) * 0.16;
+        }
+        labReceiverAngle += (labReceiverTarget - labReceiverAngle) * 0.18;
+        if (labJumpFlash > 0) labJumpFlash = Math.max(0, labJumpFlash - 0.03);
+
+        updateLabStats();
+
+        ctx.clearRect(0, 0, W, H);
+
+        // Współrzędne głównych osi
+        const rx = 230, ry = 265, rRadius = 105; // Koło Biorcy (Rząd wyższy i+1, po lewej)
+        const dx = 630, dy = 265, dRadius = 115; // Koło Dawcy (Rząd niższy i, po prawej)
+
+        const normAngle = ((labWheelAngle % 360) + 360) % 360;
+        const sautoirInfo = computeSautoirLift(normAngle);
+        const liftAngleRad = -(sautoirInfo.liftPct * 26 * Math.PI) / 180;
+
+        // 1. Linie pomocnicze wymiarowe (Blueprint)
+        ctx.save();
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.22)';
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(rx, 70); ctx.lineTo(rx, 420);
+        ctx.moveTo(dx, 70); ctx.lineTo(dx, 420);
+        ctx.moveTo(80, ry); ctx.lineTo(780, ry);
+        ctx.stroke();
+        ctx.restore();
+
+        // 2. Koło Biorcy (Po lewej, 10 zębów)
+        drawGear2D(ctx, rx, ry, rRadius, 10, labReceiverAngle, '#1e3a5f', '#38bdf8', true);
+
+        // 3. Zapadka jednokierunkowa (Cliquet de retenue) nad kołem biorcy
+        ctx.save();
+        ctx.translate(rx - 55, ry - rRadius - 28);
+        const ratchetBounce = Math.sin((labReceiverAngle * Math.PI) / 18) * 0.06;
+        ctx.rotate(ratchetBounce);
+        ctx.fillStyle = '#94a3b8';
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(52, 14);
+        ctx.lineTo(46, 26);
+        ctx.lineTo(0, 10);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, 5, 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fill();
+        ctx.restore();
+
+        // 4. Koło Dawcy (Po prawej, N zębów)
+        drawGear2D(ctx, dx, dy, dRadius, labTeeth, labWheelAngle, '#422c09', '#f59e0b', true);
+
+        // Kołek podnoszący Sautoir (Cheville) na kole dawcy
+        // Umieszczony tak, aby przy kącie 250..352° znajdował się po lewej u góry koła dawcy
+        const pinAngleRad = ((labWheelAngle + 185) * Math.PI) / 180;
+        const pinR = dRadius - 26;
+        const pinX = dx + Math.cos(pinAngleRad) * pinR;
+        const pinY = dy + Math.sin(pinAngleRad) * pinR;
+
+        // 5. Rysowanie dźwigni grawitacyjnej SAUTOIR (centralny mechanizm)
+        const pivotX = 465, pivotY = 145;
+        ctx.save();
+        ctx.translate(pivotX, pivotY);
+        ctx.rotate(liftAngleRad);
+
+        // Ramię w prawo (krzywka podnoszona przez kołek dawcy)
+        ctx.beginPath();
+        ctx.moveTo(0, -8);
+        ctx.lineTo(125, 55);
+        ctx.lineTo(112, 72);
+        ctx.lineTo(-10, 10);
+        ctx.closePath();
+        ctx.fillStyle = sautoirInfo.phase === 'drop' || labJumpFlash > 0.2 ? '#f59e0b' : '#d4af37';
+        ctx.fill();
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = '#fef08a';
+        ctx.stroke();
+
+        // Ramię w lewo z ciężarkiem grawitacyjnym i pazurem popychającym koło biorcy
+        ctx.beginPath();
+        ctx.moveTo(0, -8);
+        ctx.lineTo(-145, 42);
+        ctx.lineTo(-165, 72); // Pazur popychający ząb
+        ctx.lineTo(-132, 78);
+        ctx.lineTo(-110, 52);
+        ctx.lineTo(0, 12);
+        ctx.closePath();
+        ctx.fillStyle = sautoirInfo.phase === 'drop' || labJumpFlash > 0.2 ? '#fbbf24' : '#b48618';
+        ctx.fill();
+        ctx.stroke();
+
+        // Ciężarek grawitacyjny (masa m) na lewym ramieniu
+        ctx.beginPath();
+        ctx.arc(-95, 38, 16, 0, Math.PI * 2);
+        ctx.fillStyle = '#78350f';
+        ctx.fill();
+        ctx.strokeStyle = '#fde68a';
+        ctx.stroke();
+        ctx.fillStyle = '#fef3c7';
+        ctx.font = 'bold 10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('Masa m', -95, 41);
+
+        // Oś obrotu Sautoir
+        ctx.beginPath();
+        ctx.arc(0, 0, 10, 0, Math.PI * 2);
+        ctx.fillStyle = '#f8fafc';
+        ctx.fill();
+        ctx.strokeStyle = '#0f172a';
+        ctx.stroke();
+        ctx.restore();
+
+        // 6. Rysowanie kołka przeniesienia na wierzchu (z poświatą)
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(pinX, pinY, 9, 0, Math.PI * 2);
+        ctx.fillStyle = '#ef4444';
+        ctx.fill();
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = '#fecaca';
+        ctx.stroke();
+        ctx.restore();
+
+        // 7. Wektor siły grawitacji Fg = m*g
+        ctx.save();
+        const weightWorldX = pivotX - 95 * Math.cos(liftAngleRad) - 38 * Math.sin(liftAngleRad);
+        const weightWorldY = pivotY - 95 * Math.sin(liftAngleRad) + 38 * Math.cos(liftAngleRad);
+        ctx.strokeStyle = '#ef4444';
+        ctx.fillStyle = '#ef4444';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(weightWorldX, weightWorldY + 18);
+        ctx.lineTo(weightWorldX, weightWorldY + 58);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(weightWorldX - 6, weightWorldY + 52);
+        ctx.lineTo(weightWorldX + 6, weightWorldY + 52);
+        ctx.lineTo(weightWorldX, weightWorldY + 62);
+        ctx.closePath();
+        ctx.fill();
+        ctx.font = 'bold 11px "JetBrains Mono", monospace';
+        ctx.fillText('Fg = m·g', weightWorldX + 34, weightWorldY + 46);
+        ctx.restore();
+
+        // 8. Czytelne etykiety techniczne (w rogach, zero nakładania się)
+        ctx.save();
+        ctx.font = 'bold 13px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#38bdf8';
+        ctx.textAlign = 'center';
+        ctx.fillText('KOŁO BIORCY (Rząd wyższy i+1)', rx, 35);
+        ctx.font = '11px "Inter", sans-serif';
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText('Zapadka jednokierunkowa (blokada cofania)', rx, 54);
+
+        ctx.font = 'bold 13px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillText(`KOŁO DAWCY (Rząd i • ${labTeeth} zębów)`, dx, 35);
+        ctx.font = '11px "Inter", sans-serif';
+        ctx.fillStyle = '#fde68a';
+        ctx.fillText('Czerwony punkt = Kołek unoszący Sautoir', dx, 54);
+
+        ctx.font = 'bold 12px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillText('DŹWIGNIA SAUTOIR (Oś obrotu)', pivotX, 118);
+
+        if (labJumpFlash > 0.05) {
+          ctx.fillStyle = `rgba(251, 191, 36, ${labJumpFlash})`;
+          ctx.font = 'bold 16px "Cinzel", serif';
+          ctx.fillText('⚡ SKOK GRAWITACYJNY (+1 ZĄB)! ⚡', 430, 435);
+        }
+        ctx.restore();
+      }
+      requestAnimationFrame(renderSautoirCanvas);
+    }
+
+    /*************************************************************************
+     * 4. MODUŁ 3: KALKULATOR ODEJMOWANIA METODĄ DOPEŁNIEŃ DO 9
+     *************************************************************************/
+    let autoDemoRunning = false;
+
+    function setSubExample(a, b) {
+      document.getElementById('sub-input-a').value = a;
+      document.getElementById('sub-input-b').value = b;
+      updateComplementCalculator();
+    }
+
+    function updateComplementCalculator() {
+      let a = parseInt(document.getElementById('sub-input-a').value, 10);
+      let b = parseInt(document.getElementById('sub-input-b').value, 10);
+      if (isNaN(a) || a < 0) a = 0;
+      if (isNaN(b) || b < 0) b = 0;
+      if (a > 99999) a = 99999;
+      if (b > 99999) b = 99999;
+
+      // Jeśli B > A, pokaż informację, ale policz poprawnie dla A >= B
+      const aStr = String(a).padStart(5, '0');
+      const bStr = String(b).padStart(5, '0');
+      const comp99999_A = 99999 - a;
+      const compAStr = String(comp99999_A).padStart(5, '0');
+      const diff = a - b;
+
+      // 1. Tablica rozkładu 5 cyfr
+      const tableEl = document.getElementById('complement-digits-table');
+      tableEl.innerHTML = '';
+      const labels = ['10⁴', '10³', '10²', '10¹', '10⁰'];
+
+      for (let i = 0; i < 5; i++) {
+        const digitA = parseInt(aStr[i], 10);
+        const compDigitA = 9 - digitA;
+        const digitB = parseInt(bStr[i], 10);
+
+        const cell = document.createElement('div');
+        cell.className = 'bg-stone-900 border border-stone-800 rounded-lg p-2 flex flex-col items-center';
+        cell.innerHTML = `
+          <span class="text-[10px] text-stone-500">${labels[i]}</span>
+          <span class="text-xs text-stone-300 mt-0.5">A: <strong>${digitA}</strong></span>
+          <span class="text-xs text-amber-400 font-bold">Dop(A): ${compDigitA}</span>
+          <span class="text-xs text-emerald-400 mt-0.5">+B: <strong>+${digitB}</strong></span>
+        `;
+        tableEl.appendChild(cell);
+      }
+
+      // 2. Instrukcja Krok po Kroku (jak robił to operator Pascaliny w 1642 roku)
+      const stepsEl = document.getElementById('subtraction-steps-list');
+      stepsEl.innerHTML = `
+        <div class="bg-stone-900/90 border border-stone-800 rounded-xl p-3 flex items-start gap-3">
+          <span class="w-6 h-6 rounded-full bg-amber-500 text-stone-950 font-mono font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">1</span>
+          <div>
+            <div class="font-bold text-amber-200">Przesuń mosiężną listwę w dół (Tryb Odejmowania / Dopełnień)</div>
+            <p class="text-xs text-stone-400 mt-0.5">
+              Po wyzerowaniu maszyny górne okienka pokazują <span class="font-mono text-amber-300">99999</span>. Aby w górnych okienkach pojawiła się odjemna <span class="font-mono text-white font-bold">A = ${aStr}</span>, wprowadzamy na tarczach jej dopełnienie do dziewiątek: <span class="font-mono text-amber-400 font-bold">${compAStr}</span>.
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-stone-900/90 border border-stone-800 rounded-xl p-3 flex items-start gap-3">
+          <span class="w-6 h-6 rounded-full bg-amber-500 text-stone-950 font-mono font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
+          <div>
+            <div class="font-bold text-amber-200">Dodaj odjemnik B = ${bStr} na tarczach wejściowych</div>
+            <p class="text-xs text-stone-400 mt-0.5">
+              Ponieważ w górnym rzędzie cyfry maleją, gdy bęben obraca się w przód (bo <span class="font-mono">Góra = 9 − Dół</span>), zwykłe dodanie cyfr liczby <span class="font-mono text-emerald-400 font-bold">B (${bStr})</span> powoduje odjęcie ich od widocznej na górze liczby A!
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-stone-900/90 border border-stone-800 rounded-xl p-3 flex items-start gap-3">
+          <span class="w-6 h-6 rounded-full bg-emerald-500 text-stone-950 font-mono font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
+          <div>
+            <div class="font-bold text-emerald-300">Odczytaj gotowy wynik w górnym rzędzie okienek!</div>
+            <p class="text-xs text-stone-400 mt-0.5">
+              Mechanizm Sautoir automatycznie obsługuje pożyczki między kolumnami. W górnych okienkach odczytujesz bezpośrednio wynik: <span class="font-mono text-emerald-400 font-bold text-sm">${diff >= 0 ? String(diff).padStart(5, '0') + ' (' + diff + ')' : 'B > A (Wynik ujemny)'}</span>.
+            </p>
+          </div>
+        </div>
+      `;
+
+      // 3. Dowód matematyczny na dole
+      const proofEl = document.getElementById('subtraction-math-proof');
+      const bottomTotal = comp99999_A + b;
+      const topReadout = 99999 - (bottomTotal % 100000);
+      proofEl.innerHTML = `
+        <div class="font-bold text-amber-300">Dowód algebraiczny mechanizmu bębnów Pascala:</div>
+        <div>• Stan dolnego rzędu bębnów: <span class="text-white">(99999 − ${a}) + ${b} = ${comp99999_A} + ${b} = ${bottomTotal}</span></div>
+        <div>• Odczyt z górnego rzędu (Dopełnienie): <span class="text-emerald-400 font-bold">99999 − ${bottomTotal} = ${a} − ${b} = ${topReadout}</span></div>
+      `;
+    }
+
+    // Automatyczne wykonanie odejmowania na głównym symulatorze powyżej
+    function runAutomatedSubtractionOnSimulator() {
+      stopAutoDemo();
+      clearPendingAnimations();
+
+      let a = parseInt(document.getElementById('sub-input-a').value, 10) || 0;
+      let b = parseInt(document.getElementById('sub-input-b').value, 10) || 0;
+      if (a > 99999) a = 99999;
+      if (b > 99999) b = 99999;
+
+      const aStr = String(a).padStart(5, '0');
+      const bStr = String(b).padStart(5, '0');
+      const compAStr = String(99999 - a).padStart(5, '0');
+
+      // Przewiń płynnie do głównego symulatora na górze
+      document.getElementById('modul-symulator').scrollIntoView({ behavior: 'smooth' });
+
+      // Upewnij się, że jesteśmy w trybie dziesiętnym
+      if (currentMode !== 'decimal') {
+        setMachineMode('decimal');
+      } else {
+        resetMachine();
+      }
+
+      autoDemoRunning = true;
+      const banner = document.getElementById('auto-demo-banner');
+      const stepText = document.getElementById('auto-demo-step-text');
+      banner.classList.remove('hidden');
+
+      stepText.textContent = `Krok 1/3: Przesuwanie listwy w TRYB ODEJMOWANIA (odsłonięcie dopełnień)...`;
+      toggleBrassSlider(true);
+
+      let delay = 900;
+
+      // Wprowadzanie dopełnienia liczby A (aby na górze pojawiło się A)
+      for (let i = 0; i < 5; i++) {
+        const compDigit = parseInt(compAStr[i], 10);
+        if (compDigit > 0) {
+          const t = setTimeout(() => {
+            stepText.textContent = `Krok 2/3: Ustawianie odjemnej A=${a} (wprowadzanie dopełnienia ${compDigit} na bębnie #${i + 1})...`;
+            rotateWheel(i, compDigit, false);
+          }, delay);
+          activeTimeouts.push(t);
+          delay += 650;
+        }
+      }
+
+      delay += 600;
+
+      // Dodawanie cyfr odjemnika B
+      for (let i = 0; i < 5; i++) {
+        const digitB = parseInt(bStr[i], 10);
+        if (digitB > 0) {
+          const t = setTimeout(() => {
+            stepText.textContent = `Krok 3/3: Dodawanie odjemnika B=${b} (obrót o +${digitB} zębów na tarczy #${i + 1})...`;
+            rotateWheel(i, digitB, false);
+          }, delay);
+          activeTimeouts.push(t);
+          delay += 850;
+        }
+      }
+
+      const finalTimeout = setTimeout(() => {
+        const result = a - b;
+        stepText.textContent = `✔ Zakończono! W górnych okienkach widnieje wynik: ${a} − ${b} = ${result}.`;
+        addLogEntry(`✔ <strong>Zakończono odejmowanie metodą dopełnień</strong>: ${a} − ${b} = <strong>${result}</strong> (odczyt w górnych okienkach).`, 'carry');
+        setTimeout(() => {
+          if (autoDemoRunning) stopAutoDemo();
+        }, 4000);
+      }, delay + 300);
+      activeTimeouts.push(finalTimeout);
+    }
+
+    function stopAutoDemo() {
+      autoDemoRunning = false;
+      clearPendingAnimations();
+      const banner = document.getElementById('auto-demo-banner');
+      if (banner) banner.classList.add('hidden');
+    }
+
+    /*************************************************************************
+     * INICJALIZACJA PO ZAŁADOWANIU STRONY
+     *************************************************************************/
+    window.onload = function () {
+      buildMachineDOM();
+      setLabTeeth(10);
+      updateComplementCalculator();
+      addLogEntry('Zainicjalizowano symulator Pascaliny (Anno 1642). Kliknij otwór na tarczy, aby obrócić koło.', 'mode');
+      requestAnimationFrame(renderSautoirCanvas);
+    };
+  </script>
+</body>
+</html>
